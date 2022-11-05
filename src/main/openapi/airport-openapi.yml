@@ -8,6 +8,57 @@ servers:
   - url: 'http://localhost:8080/'
     description: Generated server url
 paths:
+  /api/airports:
+    get:
+      tags:
+        - airport-controller
+      operationId: getAll
+      parameters:
+        - name: full
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: size
+        - schema:
+            type: array
+            items:
+              type: string
+          in: query
+          name: sort
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AirportDto'
+    post:
+      tags:
+        - airport-controller
+      operationId: createAirport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirportDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirportDto'
   '/api/airports/{id}':
     get:
       tags:
@@ -65,6 +116,81 @@ paths:
       responses:
         '200':
           description: OK
+  '/api/airports/{id}/history':
+    get:
+      tags:
+        - airport-controller
+      operationId: getHistoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoryDataAirportDto'
+  '/api/airports/{id}/image':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: id
+        in: path
+        required: true
+    post:
+      tags:
+        - airport-controller
+      summary: ''
+      operationId: uploadImageForAirport
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                content:
+                  type: string
+                  format: binary
+        description: ''
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: string
+  '/api/image/{id}':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags:
+        - image-controller
+      responses:
+        '200':
+          description: OK
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+      operationId: downloadImage
   /api/flights:
     post:
       tags:
@@ -83,27 +209,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlightDto'
-  '/api/flights/{flightId}/pollDelay/{rate}':
-    post:
-      tags:
-        - flight-controller
-      operationId: startDelayPolling
-      parameters:
-        - name: flightId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: rate
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: OK
   /api/flights/search:
     get:
       tags:
@@ -157,64 +262,19 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FlightDto'
-  /api/airports:
-    get:
-      tags:
-        - airport-controller
-      operationId: getAll
-      parameters:
-        - name: full
-          in: query
-          required: false
-          schema:
-            type: boolean
-        - schema:
-            type: integer
-          in: query
-          name: page
-        - schema:
-            type: integer
-          in: query
-          name: size
-        - schema:
-            type: array
-            items:
-              type: string
-          in: query
-          name: sort
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AirportDto'
+  '/api/flights/{flightId}/pollDelay/{rate}':
     post:
       tags:
-        - airport-controller
-      operationId: createAirport
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AirportDto'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AirportDto'
-  '/api/airports/{id}/history':
-    get:
-      tags:
-        - airport-controller
-      operationId: getHistoryById
+        - flight-controller
+      operationId: startDelayPolling
       parameters:
-        - name: id
+        - name: flightId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: rate
           in: path
           required: true
           schema:
@@ -223,12 +283,6 @@ paths:
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HistoryDataAirportDto'
   '/api/flights/{flightId}/pollDelay':
     delete:
       tags:

@@ -1,12 +1,12 @@
 package hu.webuni.airport.model;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Size;
@@ -65,6 +65,14 @@ public class Airport {
 		@OneToMany(mappedBy = "landing")
 		//private List<Flight> arrivals;
 		private Set<Flight> arrivals;
+		
+		@OneToMany
+		//ha az image-ből nem hivatkozunk vissza az ariport-ra egy ManyToOne-nal
+		//akkor a spring by deafult létrehoz egy kapcsolótáblát kettőjük között
+		//ilyenkor alapvetően elegendő lenne egy idegen kulcs oszlop az image-ben
+		//ahhoz, hogy kapcsoló tábla helyett csak egy idegen kulcs oszlop jöjjön létre az image-ben:
+		@JoinColumn(name = "airport_id")
+		private Set<Image> images;
 		
 		//constructor
 		public Airport(String name, String iata) {

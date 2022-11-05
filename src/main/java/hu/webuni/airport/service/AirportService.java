@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import hu.webuni.airport.model.Address;
 import hu.webuni.airport.model.Airport;
 import hu.webuni.airport.model.HistoryData;
+import hu.webuni.airport.model.Image;
 import hu.webuni.airport.repository.AirportRepository;
+import hu.webuni.airport.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class AirportService {
 
 	private final AirportRepository airportRepository;
+	private final ImageRepository imageRepository;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -130,6 +133,28 @@ public class AirportService {
 							}).toList();
 		
 		return resultList;
+		
+	}
+	
+	@Transactional
+	public Image saveImageForAirport(Long airportId, String fileName, byte[] bytes) {
+		
+		Airport airport = airportRepository.findById(airportId).get();
+		
+		Image image = Image.builder()
+				.fileName(fileName)
+				.data(bytes)
+				.build();
+		
+		image = imageRepository.save(image);
+		
+		//ez itt adatforgalomi szempontból nagyon nem hatékony megoldás,
+		//mert ilyenkor a repülőtérhez tartozó összes kép (byte tömb) betöltsére kerül, azért, hogy egy újabb kép hozzáadásra kerüljön
+		//megoldás: fel kellene venni az image-ben egy @ManyToOne kapcsolatot, ami az airport-ra  mutat,
+		//azon keresztül lehetséges lenne az image-ben beállítani, hogy melyik airport-hoz tartozik, szóval az image irányaból menedzselni a mentést
+		airport.getImages().add(image); 
+		
+		return image;
 		
 	}
 	

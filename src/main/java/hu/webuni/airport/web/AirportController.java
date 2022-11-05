@@ -1,5 +1,6 @@
 package hu.webuni.airport.web;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import hu.webuni.airport.api.AirportControllerApi;
@@ -27,6 +29,7 @@ import hu.webuni.airport.mapper.AirportMapper;
 import hu.webuni.airport.mapper.HistoryDataMapper;
 import hu.webuni.airport.model.Airport;
 import hu.webuni.airport.model.HistoryData;
+import hu.webuni.airport.model.Image;
 import hu.webuni.airport.repository.AirportRepository;
 import hu.webuni.airport.service.AirportService;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class AirportController implements AirportControllerApi {
-	
+
 	private final NativeWebRequest nativeWebRequest;
 	private final AirportService airportService;
 	private final AirportRepository airportRepository;
@@ -182,5 +185,55 @@ public class AirportController implements AirportControllerApi {
 		
 	}
 	
+//	FÁJL FELTÖLTÉS - openapi leíróban az alábbiak lettek beállítva:
+//
+//	'/api/airports/{id}/image':
+//	    parameters:
+//	      - schema:
+//	          type: integer
+//	          format: int64
+//	        name: id
+//	        in: path
+//	        required: true
+//	    post:
+//	      tags:
+//	        - airport-controller
+//	      summary: ''
+//	      operationId: uploadImageForAirport
+//	      requestBody:
+//	        content:
+//	          multipart/form-data:
+//	            schema:
+//	              type: object
+//	              properties:
+//	                fileName:
+//	                  type: string
+//	                content:
+//	                  type: string
+//	                  format: binary
+//	        description: ''
+//	      responses:
+//	        '200':
+//	          description: OK
+//	          headers: {}
+//	          content:
+//	            application/json:
+//	              schema:
+//	                type: string
+	
+	@Override
+	public ResponseEntity<String> uploadImageForAirport(Long id, @Valid String fileName, MultipartFile content) {
 
+		Image image;
+		try {
+			image = airportService.saveImageForAirport(id, fileName, content.getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+		
+		return ResponseEntity.ok("/api/images/" + image.getId());
+		
+	}
+	
 }
