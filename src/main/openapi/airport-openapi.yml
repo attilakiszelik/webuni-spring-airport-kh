@@ -1,0 +1,319 @@
+openapi: 3.0.1
+x-stoplight:
+  id: 3ntzjjhpkb1vg
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8080/'
+    description: Generated server url
+paths:
+  '/api/airports/{id}':
+    get:
+      tags:
+        - airport-controller
+      operationId: getById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirportDto'
+    put:
+      tags:
+        - airport-controller
+      operationId: modifyAirport
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirportDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirportDto'
+    delete:
+      tags:
+        - airport-controller
+      operationId: deleteAirport
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+  /api/flights:
+    post:
+      tags:
+        - flight-controller
+      operationId: createFlight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightDto'
+  '/api/flights/{flightId}/pollDelay/{rate}':
+    post:
+      tags:
+        - flight-controller
+      operationId: startDelayPolling
+      parameters:
+        - name: flightId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: rate
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+  /api/flights/search:
+    get:
+      tags:
+        - flight-controller
+      operationId: searchFlights_2
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: id
+        - schema:
+            type: string
+          in: query
+          name: flightNumber
+        - schema:
+            type: string
+          in: query
+          name: takeoff.iata
+        - schema:
+            type: array
+            items:
+              type: string
+          in: query
+          name: takeoffTime
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightDto'
+    post:
+      tags:
+        - flight-controller
+      operationId: searchFlights
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightDto'
+  /api/airports:
+    get:
+      tags:
+        - airport-controller
+      operationId: getAll
+      parameters:
+        - name: full
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - schema:
+            type: integer
+          in: query
+          name: page
+        - schema:
+            type: integer
+          in: query
+          name: size
+        - schema:
+            type: array
+            items:
+              type: string
+          in: query
+          name: sort
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AirportDto'
+    post:
+      tags:
+        - airport-controller
+      operationId: createAirport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirportDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirportDto'
+  '/api/airports/{id}/history':
+    get:
+      tags:
+        - airport-controller
+      operationId: getHistoryById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoryDataAirportDto'
+  '/api/flights/{flightId}/pollDelay':
+    delete:
+      tags:
+        - flight-controller
+      operationId: stopDelayPolling
+      parameters:
+        - name: flightId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    AddressDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        city:
+          type: string
+        country:
+          type: string
+        street:
+          type: string
+        zip:
+          type: string
+    AirportDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          maxLength: 20
+          minLength: 3
+          type: string
+        iata:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressDto'
+        departures:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightDto'
+        arrivals:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightDto'
+    FlightDto:
+      required:
+        - flightNumber
+        - takeoffTime
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        flightNumber:
+          type: string
+        takeoffTime:
+          type: string
+          format: date-time
+        takeoff:
+          $ref: '#/components/schemas/AirportDto'
+        landing:
+          $ref: '#/components/schemas/AirportDto'
+    HistoryDataAirportDto:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AirportDto'
+        revType:
+          type: string
+          enum:
+            - ADD
+            - MOD
+            - DEL
+        revision:
+          type: integer
+          format: int32
+        date:
+          type: string
+          format: date-time
