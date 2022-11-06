@@ -1,16 +1,17 @@
 package hu.webuni.airport.web;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.web.querydsl.QuerydslPredicateArgumentResolver;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -24,18 +25,22 @@ import hu.webuni.airport.mapper.FlightMapper;
 import hu.webuni.airport.model.Flight;
 import hu.webuni.airport.repository.FlightRepository;
 import hu.webuni.airport.service.FlightService;
+import hu.webuni.airport.websocket.DelayMessage;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 public class FlightController implements FlightControllerApi{
 
-	private final NativeWebRequest nativeWebRequest;
-	private final FlightService flightService;
 	private final FlightMapper flightMapper;
+	private final FlightService flightService;
 	private final FlightRepository flightRepository;
 	
+	private final NativeWebRequest nativeWebRequest;
+	
 	private final QuerydslPredicateArgumentResolver querydslResolver;
+	
+	private final SimpMessagingTemplate messagingTemplate;
 	
 	@Override
 	public Optional<NativeWebRequest> getRequest() {
@@ -103,5 +108,47 @@ public class FlightController implements FlightControllerApi{
 		}
 		
 	}
+
+//	WEBSOCKET - openapi leíróban az alábbiak lettek beállítva:
+//	
+//	 '/api/flights/{id}/delay/{delay}':
+//		    parameters:
+//		      - schema:
+//		          type: integer
+//		          format: int64
+//		        name: id
+//		        in: path
+//		        required: true
+//		      - schema:
+//		          type: integer
+//		          format: int32
+//		        name: delay
+//		        in: path
+//		        required: true
+//		    put:
+//		      summary: ''
+//		      operationId: reportDelay
+//		      responses:
+//		        '200':
+//		          description: OK
+//		      tags:
+//		        - flight-controller
+	
+	@Override
+	public ResponseEntity<Void> reportDelay(Long id, Integer delay) {
+
+		//ez a metódus egy üres ResponseEntity.ok()-val tér vissza, de előtte még szét broadcast-olásra kerül a járatra felküldött késés
+		//paraméterek:
+		//1., a topic: amelyre feliratkozott kliensek fogják majd látni az üzenetet
+		//2., az üzenet: ez egy saját osztály, tetszőleges tartalommal, most maga a késés lesz benne és annak beküldési ideje
+		this.messagingTemplate.convertAndSend("/topic/delay/" + id, new DelayMessage(delay, OffsetDateTime.now()));
+		
+		return ResponseEntity.ok().build();
+		
+	}
+	
+
+	
+	
 
 }

@@ -179,9 +179,10 @@ paths:
         in: path
         required: true
     get:
-      summary: Your GET endpoint
       tags:
         - image-controller
+      summary: ''
+      operationId: downloadImage
       responses:
         '200':
           description: OK
@@ -190,7 +191,6 @@ paths:
               schema:
                 type: string
                 format: binary
-      operationId: downloadImage
   /api/flights:
     post:
       tags:
@@ -298,6 +298,28 @@ paths:
       responses:
         '200':
           description: OK
+  '/api/flights/{id}/delay/{delay}':
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: id
+        in: path
+        required: true
+      - schema:
+          type: integer
+          format: int32
+        name: delay
+        in: path
+        required: true
+    put:
+      summary: ''
+      operationId: reportDelay
+      responses:
+        '200':
+          description: OK
+      tags:
+        - flight-controller
 components:
   schemas:
     AddressDto:
