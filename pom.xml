@@ -172,6 +172,25 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-messaging</artifactId>
 			</dependency>
+					
+			<!-- webservice -->
+			<dependency>
+			    <groupId>org.apache.cxf</groupId>
+			    <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+			    <version>3.5.0</version>
+			</dependency>
+			
+			<!-- alkalmazás integrálás aszinkron üzenetsoron keresztül -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-activemq</artifactId>
+			</dependency>
+			
+			<!-- activemq üzenetek perzisztens tárálásához szükséges -->
+			<dependency>
+			    <groupId>org.apache.activemq</groupId>
+			    <artifactId>activemq-kahadb-store</artifactId>
+			</dependency>
 						
 	</dependencies>
 

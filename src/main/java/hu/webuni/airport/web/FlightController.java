@@ -11,6 +11,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.data.web.querydsl.QuerydslPredicateArgumentResolver;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -41,6 +42,8 @@ public class FlightController implements FlightControllerApi{
 	private final QuerydslPredicateArgumentResolver querydslResolver;
 	
 	private final SimpMessagingTemplate messagingTemplate;
+	
+	private final JmsTemplate jmsTemplate;
 	
 	@Override
 	public Optional<NativeWebRequest> getRequest() {
@@ -141,7 +144,19 @@ public class FlightController implements FlightControllerApi{
 		//paraméterek:
 		//1., a topic: amelyre feliratkozott kliensek fogják majd látni az üzenetet
 		//2., az üzenet: ez egy saját osztály, tetszőleges tartalommal, most maga a késés lesz benne és annak beküldési ideje
-		this.messagingTemplate.convertAndSend("/topic/delay/" + id, new DelayMessage(delay, OffsetDateTime.now()));
+		DelayMessage payload = new DelayMessage(delay, OffsetDateTime.now(), id);
+		this.messagingTemplate.convertAndSend("/topic/delay/" + id, payload);
+		
+		//ALKALMAZÁS INTEGRÁCIÓ ASZINKRON ÜZENETSORON KERESZTÜL
+		
+		//ha az activemq nincs külön konfigolva, akkor by deafult queue-ba küldi ki az üzenetet
+		//queue (üzenetsor): destruktív kiolvasás -> olvasó kiolvasás után küld egy "acknowledges" üzenetet a sornak, aminek hatására az üzenet törlésre kerül,
+		//                   ezért csak egy olvasó tudja azt kiolvasni (küldeni többen is tudnak) //client1 - sends, client2 - consumes
+		//topic: többen is kitudják olvasni ugyanazt az üzenetet //client1 - publish, client2,3,n - subscribe
+		
+		//első paraméter a queue/topic neve, amire majd a kliensek feliratkoznak, második maga az üzenet
+		//a DelayMessage osztály kiegészítésre került FlightId-val, mert itt nincs minden egyes flightnak saját topicja 
+		this.jmsTemplate.convertAndSend("delays", payload);
 		
 		return ResponseEntity.ok().build();
 		

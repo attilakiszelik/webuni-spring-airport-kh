@@ -11,5 +11,6 @@ public class DelayMessage {
 
 	private int delay;
 	private OffsetDateTime timestamp;
+	private long flightId;
 	
 }

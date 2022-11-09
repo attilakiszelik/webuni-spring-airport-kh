@@ -48,4 +48,21 @@ public class DelayService {
 //		
 //	}
 	
+	//webservice-ben használt aszinkron getDelay metódus
+	@Async
+	public CompletableFuture<Integer> getDelayAsync(long flightId) {
+		
+		System.out.println("DelayService.getDelayAsync called at thread:" + Thread.currentThread().getName());
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+
+			e.printStackTrace();
+		}
+
+		return CompletableFuture.completedFuture(random.nextInt(0, 1800));
+		
+	}
+	
 }

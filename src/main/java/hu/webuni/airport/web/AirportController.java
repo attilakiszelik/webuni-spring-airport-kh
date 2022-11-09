@@ -38,11 +38,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AirportController implements AirportControllerApi {
 
-	private final NativeWebRequest nativeWebRequest;
 	private final AirportService airportService;
 	private final AirportRepository airportRepository;
 	private final AirportMapper airportMapper;
 	private final HistoryDataMapper historyDataMapper;
+	
+	private final NativeWebRequest nativeWebRequest;
 	
 	//ez a pageable legyártásához szükséges (springben by default bean-ként regisztrálva van)
 	private final PageableHandlerMethodArgumentResolver pageableResolver; 
