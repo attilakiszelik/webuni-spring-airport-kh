@@ -4,6 +4,8 @@ create table address_aud (id int8 not null, rev int4 not null, revtype int2, cit
 create table airport (id int8 not null, iata varchar(255), name varchar(20), address_id int8, primary key (id));
 create table airport_aud (id int8 not null, rev int4 not null, revtype int2, iata varchar(255), name varchar(255), address_id int8, primary key (id, rev));
 create table airport_image_aud (rev int4 not null, airport_id int8 not null, id int8 not null, revtype int2, primary key (rev, airport_id, id));
+create table airport_user (username varchar(255) not null, password varchar(255), primary key (username));
+create table airport_user_roles (airport_user_username varchar(255) not null, roles varchar(255));
 create table flight (id int8 not null, delay int4, flight_number varchar(255), takeoff_time timestamp, landing_id int8, takeoff_id int8, primary key (id));
 create table flight_aud (id int8 not null, rev int4 not null, revtype int2, delay int4, flight_number varchar(255), takeoff_time timestamp, landing_id int8, takeoff_id int8, primary key (id, rev));
 create table image (id int8 not null, data bytea, file_name varchar(255), airport_id int8, primary key (id));
@@ -13,6 +15,7 @@ alter table if exists address_aud add constraint FKcc7vlgg86eqe1dmvivbkv046v for
 alter table if exists airport add constraint FKlabd5pksv56twbgly520u0fm5 foreign key (address_id) references address;
 alter table if exists airport_aud add constraint FKmcli2qotv87m9hckdfqlap1p6 foreign key (rev) references revinfo;
 alter table if exists airport_image_aud add constraint FK57vbhpo86af1sgnb6wifqrsc foreign key (rev) references revinfo;
+alter table if exists airport_user_roles add constraint FKj9jifhxemic2jh6a7wxcefki4 foreign key (airport_user_username) references airport_user;
 alter table if exists flight add constraint FKlo8um1qhyvn4ec5tt90u49g9g foreign key (landing_id) references airport;
 alter table if exists flight add constraint FKnvldg0a2nu9ivpbmebljf4g1i foreign key (takeoff_id) references airport;
 alter table if exists flight_aud add constraint FKhsh47yo772an5k6vlxcbnbj1a foreign key (rev) references revinfo;
