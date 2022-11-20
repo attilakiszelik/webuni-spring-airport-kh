@@ -27,5 +27,8 @@ public class AirportUser {
 	//ezáltal nem jön létre saját táblája az adatbázisban, viszont user és role közötti kapcsolótábla igen
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Set<String> roles;
+	
+	//facebook login beépítésekor adtuk hozzá, hogy azt is letárljuk adatbázisban
+	private String facebookId;
 		
 }

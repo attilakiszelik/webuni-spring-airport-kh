@@ -15,10 +15,18 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 
 	@Override
 	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-		// TODO Auto-generated method stub
-		super.configureInbound(messages);
+
+		//itt állítjuk be, hogy csak az subscribe-olhasson a topic/delay végpontra, akinek admin authority-je van
+		messages.simpSubscribeDestMatchers("topic/delay").hasAuthority("admin");
+		
 	}
 
+	//a CSRF védelem a websocket szinten is by deafult be van kapcsolva, azt így lehet kikapcsolni:
+	@Override
+	protected boolean sameOriginDisabled() {
+		
+		return true;
 	
-	
+	}
+
 }

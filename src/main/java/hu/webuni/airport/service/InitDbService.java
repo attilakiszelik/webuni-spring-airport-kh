@@ -79,13 +79,13 @@ public class InitDbService {
 	@Transactional
 	public void createUsersIfNeeded() {
 		
-		if(!userRepository.existsById("admin")) {
-			userRepository.save(new AirportUser("admin", passwordEncoder.encode("pass"), Set.of("admin", "user")));
-		}
-		
-		if(!userRepository.existsById("user")) {
-			userRepository.save(new AirportUser("user", passwordEncoder.encode("pass"), Set.of("user")));
-		}
+//		if(!userRepository.existsById("admin")) {
+//			userRepository.save(new AirportUser("admin", passwordEncoder.encode("pass"), Set.of("admin", "user")));
+//		}
+//		
+//		if(!userRepository.existsById("user")) {
+//			userRepository.save(new AirportUser("user", passwordEncoder.encode("pass"), Set.of("user")));
+//		}
 		
 	}
 

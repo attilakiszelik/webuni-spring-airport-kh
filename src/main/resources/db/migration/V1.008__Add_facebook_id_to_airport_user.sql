@@ -1,0 +1,1 @@
+alter table airport_user add column facebookId varchar(64);

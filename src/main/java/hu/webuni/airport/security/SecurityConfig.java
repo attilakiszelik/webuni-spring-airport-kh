@@ -65,17 +65,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.authorizeRequests()
+			//facebook login beépítésekor adtuk hozzá (2)
+			.antMatchers(HttpMethod.POST,"/oauth2/**").permitAll()
+			.antMatchers(HttpMethod.POST,"/fbLoginSuccess").permitAll()
 			.antMatchers(HttpMethod.POST,"/api/login/**").permitAll()
-			//középhaladó képzés soorán ezt a sort adtuk hozzá, hogy a /api/stomp/** végpontokra is bárki fel tudjon íratkozni bejelentkezés nélkül
+			//középhaladó képzés során ezt a sort adtuk hozzá, hogy a /api/stomp/** végpontokra is bárki fel tudjon íratkozni bejelentkezés nélkül
 			.antMatchers(HttpMethod.POST,"/api/stomp/**").permitAll()
 			.antMatchers(HttpMethod.POST,"/api/airports/**").hasAuthority("ADMIN")
 			.antMatchers(HttpMethod.PUT,"/api/airports/**").hasAnyAuthority("USER","ADMIN") 
 			.anyRequest().authenticated()
+			//facebook login beépítésekor adtuk hozzá
 			.and()
-			.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); 
+			.oauth2Login()
+			.defaultSuccessUrl("/fbLoginSuccess", true)
+			; 
 
+		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		
 	}
-	
 
 	@Override
 	@Bean
